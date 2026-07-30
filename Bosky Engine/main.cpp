@@ -2,7 +2,7 @@
 #include "window_renderer.h"
 
 int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, INT nCmdShow) {
-	WindowRenderer renderer(1280, 720);
+	WindowRenderer renderer(1280, 720, hInstance);
 	renderer.run();
 
 	return 0;
