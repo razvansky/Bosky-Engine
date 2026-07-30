@@ -1,12 +1,10 @@
 #include "pch.h"
-#include "window_renderer.h"
 
 
 
 WindowRenderer::WindowRenderer(INT width, INT height, HINSTANCE hInstance) {
 	this->_WindowClassName = L"BoskyEngine";
 	this->_WindowTitle = L"Bosky Engine Window";
-
 	this->_width = width;
 	this->_height = height;
 
