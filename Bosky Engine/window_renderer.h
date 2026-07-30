@@ -1,10 +1,9 @@
 #pragma once
-#include <Windows.h>
-#include <exception>
+#include "pch.h"
 
 class WindowRenderer {
 public:
-	WindowRenderer(int width, int height, HINSTANCE hInstance);
+	WindowRenderer(INT width, INT height, HINSTANCE hInstance);
 	~WindowRenderer();
 	void run();  // Main message loop
 
@@ -13,6 +12,8 @@ private:
 	HWND _hwnd;
 	WNDCLASSEX _wcex;
 	LPCWSTR _WindowClassName, _WindowTitle;
+	MSG _msg;
+	HICON _hIcon;
 	HINSTANCE _hInstance;
 	void createWindow();
 	static LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);

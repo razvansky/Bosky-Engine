@@ -1,16 +1,21 @@
+#include "pch.h"
 #include "window_renderer.h"
 
 
 
-WindowRenderer::WindowRenderer(int width, int height, HINSTANCE hInstance) {
-	this->_WindowClassName = L"BoskyEngineWindow";
-	this->_WindowTitle = L"Bosky Engine";
+WindowRenderer::WindowRenderer(INT width, INT height, HINSTANCE hInstance) {
+	this->_WindowClassName = L"BoskyEngine";
+	this->_WindowTitle = L"Bosky Engine Window";
 
 	this->_width = width;
 	this->_height = height;
 
 	this->_hwnd = NULL;
 	this->_hInstance = hInstance;
+
+	this->_msg = { NULL };
+
+	_hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_MAINICON));
 
 	createWindow();
 }
@@ -34,13 +39,13 @@ void WindowRenderer::createWindow() {
 	_wcex.lpfnWndProc = WindowRenderer::WindowProc;
 	_wcex.lpszClassName = this->_WindowClassName;
 
-	_wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
+	_wcex.hCursor = LoadCursor(NULL, IDC_ARROW);
 	_wcex.hbrBackground = (HBRUSH)GetStockObject(NULL_BRUSH);
 
-	_wcex.hIcon = LoadIcon(NULL, IDI_APPLICATION);
-	_wcex.hIconSm = LoadIcon(NULL, IDI_APPLICATION);
+	_wcex.hIcon = this->_hIcon;
+	_wcex.hIconSm = this->_hIcon;
 
-	_wcex.lpszMenuName = nullptr;
+	_wcex.lpszMenuName = NULL;
 	_wcex.lpfnWndProc = WindowRenderer::WindowProc;
 
 	// Register the window class
@@ -62,29 +67,40 @@ void WindowRenderer::createWindow() {
 			NULL,
 			NULL,
 			this->_hInstance,
-			NULL
+			NULL 
 		);
+
+		if (this->_hwnd == NULL) {
+			throw std::exception("Failed to create window");
+		}
 	}
 	catch (const std::exception& e) {
 		MessageBoxA(NULL, e.what(), "Failed to create window", MB_OK | MB_ICONERROR);
 		return;
 	}
 
-
 	ShowWindow(this->_hwnd, SW_SHOW);
 	UpdateWindow(this->_hwnd);
+
 }
 
 void WindowRenderer::run() {
-	MSG msg = {};
-	while (GetMessage(&msg, NULL, 0, 0)) {
-		TranslateMessage(&msg);
-		DispatchMessage(&msg);	
+	
+	while (_msg.message != WM_QUIT) {
+
+		if (PeekMessage(&_msg, NULL, 0, 0, PM_REMOVE)) {
+			TranslateMessage(&_msg);
+			DispatchMessage(&_msg);
+		}
+
+		else {
+			
+		}
+		
 	}
 }
 
-LRESULT CALLBACK WindowRenderer::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
-{
+LRESULT CALLBACK WindowRenderer::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam){
 	switch (uMsg)
 	{
 

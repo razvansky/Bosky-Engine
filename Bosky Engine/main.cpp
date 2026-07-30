@@ -1,4 +1,4 @@
-#include "main.h"
+#include "pch.h"
 #include "window_renderer.h"
 
 int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, INT nCmdShow) {

@@ -25,13 +25,22 @@
     <Filter Include="Source Files\graphics">
       <UniqueIdentifier>{2c5db3b4-4380-4e72-96e9-533685e39013}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\pch">
+      <UniqueIdentifier>{41644ac4-ce84-494c-b39d-90a8615ef42b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\icons">
+      <UniqueIdentifier>{9a0af296-7a1f-4075-a062-12148902837f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="main.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="window_renderer.h">
       <Filter>Header Files\core</Filter>
+    </ClInclude>
+    <ClInclude Include="pch.h">
+      <Filter>Header Files\pch</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -41,5 +50,18 @@
     <ClCompile Include="window_renderer.cpp">
       <Filter>Source Files\core</Filter>
     </ClCompile>
+    <ClCompile Include="pch.cpp">
+      <Filter>Header Files\pch</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Bosky Engine.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Resource\icon.ico">
+      <Filter>Resource Files\icons</Filter>
+    </Image>
   </ItemGroup>
 </Project>
