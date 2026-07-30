@@ -16,10 +16,14 @@ WindowRenderer::~WindowRenderer() {
 }
 
 void WindowRenderer::createWindow() {
-	WNDCLASS wc = {};
-	wc.lpfnWndProc = WindowRenderer::WindowProc;  // Connect your custom message handler
-	wc.lpszClassName = L"BoskyEngineWindow";
-	RegisterClass(&wc);
+	wcex = {};
+	wcex.cbSize = sizeof(WNDCLASSEX);
+	wcex.style = CS_HREDRAW | CS_VREDRAW;
+	wcex.cbClsExtra = 0;
+	wcex.cbWndExtra = 0;
+	wcex.lpfnWndProc = WindowRenderer::WindowProc;
+	wcex.lpszClassName = L"BoskyEngineWindow";
+	RegisterClassEx(&wcex);
 
 	hwnd = CreateWindowEx(
 		0,
@@ -56,6 +60,7 @@ LRESULT CALLBACK WindowRenderer::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam,
 {
 	switch (uMsg)
 	{
+
 	case WM_CLOSE:
 	{
 		PostQuitMessage(0);

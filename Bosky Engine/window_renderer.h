@@ -10,6 +10,8 @@ public:
 private:	
 	int width, height;
 	HWND hwnd;
+	WNDCLASSEX wcex;
+
 	void createWindow();
 	static LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
