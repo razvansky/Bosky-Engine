@@ -34,6 +34,8 @@ FileHandler::~FileHandler(){
 	if (_path) {
 		free((void*)_path);
 	}	
+
+
 }
 
 FileHandler* FileHandler::Instance()
@@ -64,10 +66,10 @@ void FileHandler::WriteFile_fh(const WCHAR* filePath, const char* buffer, size_t
 	wcscpy_s(fullPath, _path);
 	wcscat_s(fullPath, filePath);
 	
-	
+	HANDLE hFile = CreateFileW(fullPath, FILE_GENERIC_WRITE | FILE_GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE , NULL, OPEN_ALWAYS, FILE_APPEND_DATA, NULL);
 
-	HANDLE hFile = CreateFileW(fullPath, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
-	 
+	SetFilePointer(hFile, 0, NULL, FILE_END);
+
 	OutputDebugString(L"Writing to file: ");
 	OutputDebugString(fullPath);
 

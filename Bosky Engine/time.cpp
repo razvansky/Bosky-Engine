@@ -37,5 +37,5 @@ std::wstring Time::GetDate(BOOL stripped) {
 }
 
 std::wstring Time::GetDateTimeString(BOOL stripped) {
-	return Time::GetDate(stripped) + Time::GetTime(stripped);
+	return Time::GetDate(stripped) + L" " + Time::GetTime(stripped);
 }

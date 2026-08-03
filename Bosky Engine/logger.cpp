@@ -1,15 +1,15 @@
 #include "pch.h"
 
-Logger* Logger::instance;
+Logger* Logger::_instance = nullptr;
 
 Logger::Logger() {
-	instance = this;
+	_instance = this;
 }
 
 Logger::~Logger() {
 }
 
-void Logger::PrintLog(const WCHAR* message, ...) {
+void Logger::PrintLog(BOOL writeToFile, const WCHAR* message, ...) {
 	va_list args;
 	va_start(args, message);
 
@@ -19,14 +19,11 @@ void Logger::PrintLog(const WCHAR* message, ...) {
 	va_end(args);
 
 	OutputDebugStringW(buffer);
-
-	SYSTEMTIME st;
-
-	GetLocalTime(&st);
-
-	WCHAR filepath[1024];
-	swprintf_s(filepath, L"logs\\log%s.txt", Time::GetDateTimeString(TRUE).c_str());
-
-	FileHandler::WriteFile_fh(filepath, (const char*)buffer, wcslen(buffer) * sizeof(WCHAR));
+	
+	if (writeToFile) {
+		WCHAR filepath[1024];
+		swprintf_s(filepath, L"logs\\log%s.txt", Time::GetDate(TRUE).c_str());
+		FileHandler::WriteFile_fh(filepath, (const char*)buffer, wcslen(buffer) * sizeof(WCHAR));
+	}
 }
 

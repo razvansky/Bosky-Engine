@@ -77,6 +77,8 @@ void WindowRenderer::createWindow() {
 		return;
 	}
 
+	Logger::PrintLog(TRUE, L"[%s] Window created successfully: %s\n", Time::GetDateTimeString(FALSE).c_str(), this->_WindowTitle);
+
 	ShowWindow(this->_hwnd, SW_SHOW);
 	UpdateWindow(this->_hwnd);
 
@@ -93,6 +95,8 @@ void WindowRenderer::run() {
 
 		else {
 			
+			Logger::PrintLog(FALSE, L"[%s] Running main loop\n", Time::GetDateTimeString(FALSE).c_str());
+
 		}
 		
 	}

@@ -5,10 +5,10 @@ public:
 	~Logger();
 	Logger();
 	static Logger* Instance();
-	static void PrintLog(const WCHAR* message, ...);;
+	static void PrintLog(BOOL writeToFile, const WCHAR* message, ...);;
 
 private:
-	static Logger* instance;
+	static Logger* _instance;
 
 
 };
