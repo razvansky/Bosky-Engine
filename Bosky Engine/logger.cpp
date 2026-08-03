@@ -25,7 +25,7 @@ void Logger::PrintLog(const WCHAR* message, ...) {
 	GetLocalTime(&st);
 
 	WCHAR filepath[1024];
-	swprintf_s(filepath, L"logs\\log%d-%d-%d-%d%d%d.txt", st.wDay, st.wMonth, st.wYear, st.wHour, st.wMinute, st.wSecond);
+	swprintf_s(filepath, L"logs\\log%s.txt", Time::GetDateTimeString(TRUE).c_str());
 
 	FileHandler::WriteFile_fh(filepath, (const char*)buffer, wcslen(buffer) * sizeof(WCHAR));
 }

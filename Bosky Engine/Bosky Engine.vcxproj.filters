@@ -25,11 +25,11 @@
     <Filter Include="Source Files\graphics">
       <UniqueIdentifier>{2c5db3b4-4380-4e72-96e9-533685e39013}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\pch">
-      <UniqueIdentifier>{41644ac4-ce84-494c-b39d-90a8615ef42b}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Resource Files\icons">
       <UniqueIdentifier>{9a0af296-7a1f-4075-a062-12148902837f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\pch">
+      <UniqueIdentifier>{41644ac4-ce84-494c-b39d-90a8615ef42b}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -48,11 +48,11 @@
     <ClInclude Include="filehandler.h">
       <Filter>Header Files\core</Filter>
     </ClInclude>
+    <ClInclude Include="time.h">
+      <Filter>Header Files\core</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="window_renderer.cpp">
       <Filter>Source Files\core</Filter>
     </ClCompile>
@@ -63,6 +63,12 @@
       <Filter>Source Files\core</Filter>
     </ClCompile>
     <ClCompile Include="filehandler.cpp">
+      <Filter>Source Files\core</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files\core</Filter>
+    </ClCompile>
+    <ClCompile Include="time.cpp">
       <Filter>Source Files\core</Filter>
     </ClCompile>
   </ItemGroup>

@@ -141,6 +141,7 @@
     <ClInclude Include="logger.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="time.h" />
     <ClInclude Include="window_renderer.h" />
   </ItemGroup>
   <ItemGroup>
@@ -148,6 +149,7 @@
     <ClCompile Include="logger.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="pch.cpp" />
+    <ClCompile Include="time.cpp" />
     <ClCompile Include="window_renderer.cpp" />
   </ItemGroup>
   <ItemGroup>
