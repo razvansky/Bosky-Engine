@@ -1,8 +1,8 @@
 #include "pch.h"
 
 
-FileHandler* FileHandler::_instance = nullptr;
-const WCHAR* FileHandler::_path;
+FileHandler* FileHandler::p_instance = nullptr;
+std::unique_ptr<WCHAR[]> FileHandler::p_path;
 
 FileHandler::FileHandler(){
 	WCHAR appdata[1024];
@@ -11,41 +11,38 @@ FileHandler::FileHandler(){
 	WCHAR fullPath[4096];
 	swprintf_s(fullPath, L"%s\\BoskyEngine\\", appdata);
 
-	_path = _wcsdup(fullPath);
+	p_path = std::unique_ptr<WCHAR[]>(new WCHAR[wcslen(fullPath) + 1]);
+	wcscpy_s(p_path.get(), wcslen(fullPath) + 1, fullPath);
 
 	// Create the directory if it doesn't exist
 
 	WCHAR subtitutePath[1024];
-	swprintf_s(subtitutePath, L"%s\\logs\\", _path);
+	swprintf_s(subtitutePath, L"%s\\logs\\", p_path.get());
 
-	CreateDirectoryW(_path, NULL);
-
-	CreateDirectoryW(subtitutePath, NULL);
-
-	swprintf_s(subtitutePath, L"%s\\saves\\", _path);
+	CreateDirectoryW(p_path.get(), NULL);
 
 	CreateDirectoryW(subtitutePath, NULL);
 
+	swprintf_s(subtitutePath, L"%s\\saves\\", p_path.get());
 
-	_instance = this;
+	CreateDirectoryW(subtitutePath, NULL);
+
+
+	p_instance = this;
 }
 
 FileHandler::~FileHandler(){
-	if (_path) {
-		free((void*)_path);
-	}	
-
 
 }
 
 FileHandler* FileHandler::Instance()
 {
-	return _instance;
+	return p_instance;
 }
 
-void FileHandler::ReadFile_fh(const WCHAR* filePath, char** buffer, size_t* size){
+void FileHandler::ReadFile_fh(const WCHAR* filePath, WCHAR** buffer, size_t* size){
 	WCHAR fullPath[1024] = { 0 };
-	wcscpy_s(fullPath, _path);
+	wcscpy_s(fullPath, p_path.get());
 	wcscat_s(fullPath, filePath);
 
 	HANDLE hFile = CreateFileW(fullPath, GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
@@ -61,9 +58,9 @@ void FileHandler::ReadFile_fh(const WCHAR* filePath, char** buffer, size_t* size
 	}
 }
 
-void FileHandler::WriteFile_fh(const WCHAR* filePath, const char* buffer, size_t size){
+void FileHandler::WriteFile_fh(const WCHAR* filePath, const WCHAR* buffer, size_t size){
 	WCHAR fullPath[1024] = { 0 };
-	wcscpy_s(fullPath, _path);
+	wcscpy_s(fullPath, p_path.get());
 	wcscat_s(fullPath, filePath);
 	
 	HANDLE hFile = CreateFileW(fullPath, FILE_GENERIC_WRITE | FILE_GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE , NULL, OPEN_ALWAYS, FILE_APPEND_DATA, NULL);

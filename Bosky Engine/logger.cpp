@@ -1,12 +1,16 @@
 #include "pch.h"
 
-Logger* Logger::_instance = nullptr;
+Logger*	Logger::p_instance = nullptr;
 
 Logger::Logger() {
-	_instance = this;
+	p_instance = this;
 }
 
 Logger::~Logger() {
+}
+
+Logger* Logger::Instance() {
+	return p_instance;
 }
 
 void Logger::PrintLog(BOOL writeToFile, const WCHAR* message, ...) {
@@ -23,7 +27,7 @@ void Logger::PrintLog(BOOL writeToFile, const WCHAR* message, ...) {
 	if (writeToFile) {
 		WCHAR filepath[1024];
 		swprintf_s(filepath, L"logs\\log%s.txt", Time::GetDate(TRUE).c_str());
-		FileHandler::WriteFile_fh(filepath, (const char*)buffer, wcslen(buffer) * sizeof(WCHAR));
+		FileHandler::WriteFile_fh(filepath, buffer, wcslen(buffer) * sizeof(WCHAR));
 	}
 }
 

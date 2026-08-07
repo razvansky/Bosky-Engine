@@ -8,7 +8,7 @@ public:
 	static void PrintLog(BOOL writeToFile, const WCHAR* message, ...);;
 
 private:
-	static Logger* _instance;
+	static Logger* p_instance;
 
 
 };
