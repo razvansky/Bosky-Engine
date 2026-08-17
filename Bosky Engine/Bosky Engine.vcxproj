@@ -151,6 +151,7 @@
   <ItemGroup>
     <ClInclude Include="filehandler.h" />
     <ClInclude Include="graphics_renderer.h" />
+    <ClInclude Include="Helpers.h" />
     <ClInclude Include="logger.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="resource.h" />
@@ -160,6 +161,7 @@
   <ItemGroup>
     <ClCompile Include="filehandler.cpp" />
     <ClCompile Include="graphics_renderer.cpp" />
+    <ClCompile Include="Helpers.cpp" />
     <ClCompile Include="logger.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="pch.cpp" />

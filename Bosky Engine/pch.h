@@ -18,4 +18,4 @@
 #include "resource.h"
 #include "time.h"
 #include "graphics_renderer.h"
-
+#include "Helpers.h"

@@ -57,6 +57,9 @@
     <ClInclude Include="graphics_renderer.h">
       <Filter>Header Files\graphics</Filter>
     </ClInclude>
+    <ClInclude Include="Helpers.h">
+      <Filter>Header Files\core</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="window_renderer.cpp">
@@ -79,6 +82,9 @@
     </ClCompile>
     <ClCompile Include="graphics_renderer.cpp">
       <Filter>Source Files\graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Helpers.cpp">
+      <Filter>Source Files\core</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
