@@ -1,5 +1,7 @@
 #pragma once
 
+#pragma comment(lib, "d3d12.lib")
+
 #include <Windows.h>
 #include <d3d12.h>
 #include <dxgi1_6.h>
@@ -11,11 +13,11 @@
 #include <filesystem>
 #include <memory>
 
-
+#include "Helpers.h"
 #include "logger.h"
 #include "filehandler.h"
 #include "window_renderer.h"
 #include "resource.h"
 #include "time.h"
 #include "graphics_renderer.h"
-#include "Helpers.h"
+

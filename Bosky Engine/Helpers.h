@@ -2,8 +2,7 @@
 #include "pch.h"
 
 namespace Helpers {
-	inline void ThrowIfFailed(HRESULT hr);
 
-
+	  void ThrowIfFailed(HRESULT hr);
 
 };

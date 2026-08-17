@@ -1,7 +1,7 @@
 #include "pch.h"
 
 
-inline void Helpers::ThrowIfFailed(HRESULT hr)
+void Helpers::ThrowIfFailed(HRESULT hr)
 {
 	if (FAILED(hr))
 	{
