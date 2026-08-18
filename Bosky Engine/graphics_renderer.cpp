@@ -243,3 +243,15 @@ Microsoft::WRL::ComPtr<ID3D12CommandAllocator> GraphicsRenderer::CreateCommandAl
 
 
 }
+
+Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> GraphicsRenderer::CreateCommandList(Microsoft::WRL::ComPtr<ID3D12Device2> device, D3D12_COMMAND_LIST_TYPE type, Microsoft::WRL::ComPtr<ID3D12CommandAllocator> commandAllocator)
+{
+	Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList;
+
+	Helpers::ThrowIfFailed(device->CreateCommandList(0, type, commandAllocator.Get(), nullptr, IID_PPV_ARGS(&commandList)));
+
+	Helpers::ThrowIfFailed(commandList->Close());
+
+	return commandList;
+
+}
