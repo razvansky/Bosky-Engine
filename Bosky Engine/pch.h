@@ -2,7 +2,7 @@
 
 
 #include <Windows.h>
-#include <d3d12.h>
+#include "directx/d3d12.h"
 #include <dxgi1_6.h>
 #include <d3dcompiler.h>
 #include <wrl.h>
@@ -25,4 +25,5 @@
 #include "resource.h"
 #include "time.h"
 #include "graphics_renderer.h"
+#include "directx/d3dx12.h"
 

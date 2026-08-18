@@ -193,3 +193,53 @@ Microsoft::WRL::ComPtr<IDXGISwapChain4> GraphicsRenderer::CreateSwapChain(Micros
 	return dxgiSwapChain4;
 
 }
+
+Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> GraphicsRenderer::CreateDescriptorHeap(Microsoft::WRL::ComPtr<ID3D12Device2> device, D3D12_DESCRIPTOR_HEAP_TYPE type, UINT32 numDescriptors)
+{
+	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> descriptorHeap;
+
+	D3D12_DESCRIPTOR_HEAP_DESC desc = {};
+	desc.NumDescriptors = numDescriptors;
+	desc.Type = type;
+	
+	Helpers::ThrowIfFailed(device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&descriptorHeap)));
+
+	return descriptorHeap;
+
+
+}
+
+VOID GraphicsRenderer::UpdateRenderTargetViews(Microsoft::WRL::ComPtr<ID3D12Device2> device, Microsoft::WRL::ComPtr<IDXGISwapChain4> swapChain, Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> rtvDescriptorHeap)
+{
+
+	auto rtvDescriptorSize = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+
+	CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(rtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
+
+	for (int i = 0; i < g_NumFrames; ++i)
+	{
+		Microsoft::WRL::ComPtr<ID3D12Resource> backBuffer;
+
+		Helpers::ThrowIfFailed(swapChain->GetBuffer(i, IID_PPV_ARGS(&backBuffer)));
+
+
+		device->CreateRenderTargetView(backBuffer.Get(), nullptr, rtvHandle);
+
+		g_BackBuffers[i] = backBuffer;
+		
+		rtvHandle.Offset(rtvDescriptorSize);
+
+	}
+
+}
+
+Microsoft::WRL::ComPtr<ID3D12CommandAllocator> GraphicsRenderer::CreateCommandAllocator(Microsoft::WRL::ComPtr<ID3D12Device2> device, D3D12_COMMAND_LIST_TYPE type)
+{
+	Microsoft::WRL::ComPtr<ID3D12CommandAllocator> commandAllocator;
+
+	Helpers::ThrowIfFailed(device->CreateCommandAllocator(type, IID_PPV_ARGS(&commandAllocator)));
+
+	return commandAllocator;
+
+
+}
