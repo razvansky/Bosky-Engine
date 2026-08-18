@@ -1,6 +1,5 @@
 #pragma once
 
-
 #include <Windows.h>
 #include "directx/d3d12.h"
 #include <dxgi1_6.h>
@@ -11,12 +10,21 @@
 #include <fstream>
 #include <filesystem>
 #include <memory>
+#include <cassert>
+#include <chrono>
 
 #pragma comment(lib, "d3d12.lib")
 #pragma comment(lib, "dxgi.lib")
 #pragma comment(lib, "dxguid.lib")
 #pragma comment(lib, "d3dcompiler.lib")
 
+#if defined(min)
+#undef min
+#endif
+
+#if defined(max)
+#undef max
+#endif
 
 #include "Helpers.h"
 #include "logger.h"

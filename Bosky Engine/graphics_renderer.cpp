@@ -10,10 +10,61 @@ GraphicsRenderer::GraphicsRenderer(BOOL useWarp, UINT32 clientWidth, UINT32 clie
 
 	EnableDebugLayer();
 
-	
+	g_TearingSupported = CheckTearingSupport();
+
+	Microsoft::WRL::ComPtr<IDXGIAdapter4> adapter = GetAdapter(g_UseWarp);
+
+	g_Device = CreateDevice(adapter);
+
+	g_CommandQueue = CreateCommandQueue(g_Device, D3D12_COMMAND_LIST_TYPE_DIRECT);
+
+	g_SwapChain = CreateSwapChain(g_CommandQueue, g_hWnd, g_ClientWidht, g_ClientHeight, g_NumFrames);
+
+	g_CurrentBackBufferIndex = g_SwapChain->GetCurrentBackBufferIndex();
+
+	g_RTVDescriptorHeap = CreateDescriptorHeap(g_Device, D3D12_DESCRIPTOR_HEAP_TYPE_RTV, g_NumFrames);
+	g_RTVDescriptorSize = g_Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+
+	UpdateRenderTargetViews(g_Device, g_SwapChain, g_RTVDescriptorHeap);
+
+	for (int i = 0; i < g_NumFrames; ++i)
+	{
+		g_CommandAllocators[i] = CreateCommandAllocator(g_Device, D3D12_COMMAND_LIST_TYPE_DIRECT);
+	}
+
+	g_CommandList = CreateCommandList(g_Device, D3D12_COMMAND_LIST_TYPE_DIRECT, g_CommandAllocators[g_CurrentBackBufferIndex]);
+
+	g_Fence = CreateFence(g_Device);
+	g_FenceEvent = CreateEventHandle();
+
+	g_IsInitialized = TRUE;
 
 
+}
 
+GraphicsRenderer::~GraphicsRenderer()
+{
+}
+
+GraphicsRenderer::GraphicsRenderer()
+{
+
+}
+
+VOID GraphicsRenderer::Paint()
+{
+	Update();
+	Render();
+}
+
+VOID GraphicsRenderer::setVSync()
+{
+	g_VSync = !g_VSync;
+}
+
+VOID GraphicsRenderer::setFullScreen()
+{
+	SetFullScreen(!g_FullScreen);
 }
 
 VOID GraphicsRenderer::EnableDebugLayer()
@@ -254,4 +305,207 @@ Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> GraphicsRenderer::CreateComman
 
 	return commandList;
 
+}
+
+Microsoft::WRL::ComPtr<ID3D12Fence> GraphicsRenderer::CreateFence(Microsoft::WRL::ComPtr<ID3D12Device2> device)
+{
+	Microsoft::WRL::ComPtr<ID3D12Fence> fence;
+
+	Helpers::ThrowIfFailed(device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence)));
+
+	return fence;
+}
+
+HANDLE GraphicsRenderer::CreateEventHandle()
+{
+	HANDLE fenceEvent;
+
+	fenceEvent = ::CreateEvent(NULL, FALSE, FALSE, NULL);
+
+	assert(fenceEvent && "Failed to create fence event.");
+
+	return fenceEvent;	
+}
+
+UINT64 GraphicsRenderer::Signal(Microsoft::WRL::ComPtr<ID3D12CommandQueue> commandQueue, Microsoft::WRL::ComPtr<ID3D12Fence> fence, UINT64& fenceValue)
+{
+	UINT64 fenceValueForSignal = ++fenceValue;
+
+	Helpers::ThrowIfFailed(commandQueue->Signal(fence.Get(), fenceValueForSignal));
+
+	return fenceValueForSignal;
+}
+
+VOID GraphicsRenderer::WaitForFenceValue(Microsoft::WRL::ComPtr<ID3D12Fence> fence, UINT64 fenceValue, HANDLE fenceEvent, std::chrono::milliseconds duration)
+{
+	if (fence->GetCompletedValue() < fenceValue)
+	{
+		Helpers::ThrowIfFailed(fence->SetEventOnCompletion(fenceValue, fenceEvent));
+		WaitForSingleObject(fenceEvent, static_cast<DWORD>(duration.count()));
+	}
+}
+
+VOID GraphicsRenderer::Flush(Microsoft::WRL::ComPtr<ID3D12CommandQueue> commandQueue, Microsoft::WRL::ComPtr<ID3D12Fence> fence, UINT64& fenceValue, HANDLE fenceEvent)
+{
+	UINT64 fenceValueForSignal = Signal(commandQueue, fence, fenceValue);
+	WaitForFenceValue(fence, fenceValueForSignal, fenceEvent);
+}
+
+VOID GraphicsRenderer::Update()
+{
+	static UINT64 frameCounter = 0;
+	static DOUBLE timeElapsed = 0.0;
+	static std::chrono::high_resolution_clock clock;
+	static auto t0 = clock.now();
+
+	frameCounter++;
+	auto t1 = clock.now();
+	auto deltaTime = t1 - t0;
+	t0 = t1;
+
+
+	timeElapsed += deltaTime.count() * 1e-9;
+
+	if (timeElapsed > 1.0)
+	{
+		char buffer[500];
+		auto fps = frameCounter / timeElapsed;
+		sprintf_s(buffer, "FPS: %.2f\n", fps);
+		Logger::PrintLog(FALSE, L"%S", buffer);
+
+		frameCounter = 0;
+		timeElapsed = 0.0;
+	}
+}
+
+VOID GraphicsRenderer::Render()
+{
+	auto commandAllocator = g_CommandAllocators[g_CurrentBackBufferIndex];
+	auto backBuffer = g_BackBuffers[g_CurrentBackBufferIndex];
+
+	commandAllocator->Reset();
+	g_CommandList->Reset(commandAllocator.Get(), nullptr);
+
+	{
+		CD3DX12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(
+			backBuffer.Get(), 
+			D3D12_RESOURCE_STATE_PRESENT,
+			D3D12_RESOURCE_STATE_RENDER_TARGET);
+
+		g_CommandList->ResourceBarrier(1, &barrier);
+
+		FLOAT clearColor[] = { 0.4f, 0.6f, 0.9f, 1.0f };
+
+		CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(
+			g_RTVDescriptorHeap->GetCPUDescriptorHandleForHeapStart(),
+			g_CurrentBackBufferIndex, 
+			g_RTVDescriptorSize);
+
+		g_CommandList->ClearRenderTargetView(rtvHandle, clearColor, 0, nullptr);
+	}
+
+	{
+		CD3DX12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(
+			backBuffer.Get(),
+			D3D12_RESOURCE_STATE_RENDER_TARGET,
+			D3D12_RESOURCE_STATE_PRESENT);
+		g_CommandList->ResourceBarrier(1, &barrier);
+
+		Helpers::ThrowIfFailed(g_CommandList->Close());
+
+		ID3D12CommandList* const commandLists[] = {
+			g_CommandList.Get() 
+		};
+
+		g_CommandQueue->ExecuteCommandLists(_countof(commandLists), commandLists);
+
+		UINT syncInterval = g_VSync ? 1 : 0;
+		UINT presentFlags = g_TearingSupported && !g_VSync ? DXGI_PRESENT_ALLOW_TEARING : 0;
+
+		Helpers::ThrowIfFailed(g_SwapChain->Present(syncInterval, presentFlags));
+
+		g_FrameFenceValues[g_CurrentBackBufferIndex] = Signal(g_CommandQueue, g_Fence, g_FenceValue);
+
+		g_CurrentBackBufferIndex = g_SwapChain->GetCurrentBackBufferIndex();
+
+		WaitForFenceValue(g_Fence, g_FrameFenceValues[g_CurrentBackBufferIndex], g_FenceEvent);
+	}
+
+}
+
+VOID GraphicsRenderer::Resize(UINT32 width, UINT32 height)
+{
+	if (g_ClientHeight != width || g_ClientHeight != height)
+	{
+		g_ClientWidht = std::max(1u, width);
+		g_ClientHeight = std::max(1u, height);
+		Flush(g_CommandQueue, g_Fence, g_FenceValue, g_FenceEvent);
+
+		for (int i = 0; i < g_NumFrames; ++i)
+		{
+			g_BackBuffers[i].Reset();
+			g_FrameFenceValues[i] = g_FrameFenceValues[g_CurrentBackBufferIndex];
+		}
+		DXGI_SWAP_CHAIN_DESC swapChainDesc = {};
+		Helpers::ThrowIfFailed(g_SwapChain->GetDesc(&swapChainDesc));
+		Helpers::ThrowIfFailed(g_SwapChain->ResizeBuffers(
+			g_NumFrames,
+			g_ClientWidht,
+			g_ClientHeight,
+			swapChainDesc.BufferDesc.Format,
+			swapChainDesc.Flags));
+		g_CurrentBackBufferIndex = g_SwapChain->GetCurrentBackBufferIndex();
+
+		UpdateRenderTargetViews(g_Device, g_SwapChain, g_RTVDescriptorHeap);
+	}
+}
+
+VOID GraphicsRenderer::FlushPublic()
+{
+	Flush(g_CommandQueue, g_Fence, g_FenceValue, g_FenceEvent);
+	::CloseHandle(g_FenceEvent);
+	
+}
+
+VOID GraphicsRenderer::SetFullScreen(BOOL fullscreen)
+{
+	if (g_FullScreen != fullscreen)
+	{
+		g_FullScreen = fullscreen;
+		if (g_FullScreen)
+		{
+			::GetWindowRect(g_hWnd, &g_WindowRect);
+			UINT windowStyle = WS_OVERLAPPED & ~(WS_CAPTION | WS_SYSMENU | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX);
+			::SetWindowLongW(g_hWnd, GWL_STYLE, windowStyle);
+
+			HMONITOR hMonitor = ::MonitorFromWindow(g_hWnd, MONITOR_DEFAULTTONEAREST);
+			MONITORINFOEX monitorInfo = {};
+			monitorInfo.cbSize = sizeof(MONITORINFOEX);
+			::GetMonitorInfo(hMonitor, &monitorInfo);
+
+			::SetWindowPos(g_hWnd, HWND_TOP,
+				monitorInfo.rcMonitor.left,
+				monitorInfo.rcMonitor.top,
+				monitorInfo.rcMonitor.right - monitorInfo.rcMonitor.left,
+				monitorInfo.rcMonitor.bottom - monitorInfo.rcMonitor.top,
+				SWP_FRAMECHANGED | SWP_NOACTIVATE);
+
+			::ShowWindow(g_hWnd, SW_MAXIMIZE);
+
+		}
+		else
+		{
+			::SetWindowLong(g_hWnd, GWL_STYLE, WS_OVERLAPPEDWINDOW);
+
+			::SetWindowPos(g_hWnd, HWND_NOTOPMOST,
+				g_WindowRect.left,
+				g_WindowRect.top,
+				g_WindowRect.right - g_WindowRect.left,
+				g_WindowRect.bottom - g_WindowRect.top,
+				SWP_FRAMECHANGED | SWP_NOACTIVATE);
+
+			::ShowWindow(g_hWnd, SW_NORMAL);
+		}
+
+	}
 }

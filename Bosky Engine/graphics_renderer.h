@@ -7,6 +7,15 @@ public:
 	GraphicsRenderer(BOOL useWarp, UINT32 clientWidth, UINT32 clientHeight, HWND hWnd);
 	~GraphicsRenderer();
 
+	GraphicsRenderer();
+
+	VOID Paint();
+	VOID setVSync();
+	VOID setFullScreen();
+	VOID Update();
+	VOID Render();
+	VOID Resize(UINT32 width, UINT32 height);
+	VOID FlushPublic();
 
 private:
 	static const UINT8 g_NumFrames = 3;
@@ -47,5 +56,10 @@ private:
 	VOID UpdateRenderTargetViews(Microsoft::WRL::ComPtr<ID3D12Device2> device, Microsoft::WRL::ComPtr<IDXGISwapChain4> swapChain, Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> rtvDescriptorHeap);
 	Microsoft::WRL::ComPtr<ID3D12CommandAllocator> CreateCommandAllocator(Microsoft::WRL::ComPtr<ID3D12Device2> device, D3D12_COMMAND_LIST_TYPE type);
 	Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> CreateCommandList(Microsoft::WRL::ComPtr<ID3D12Device2> device, D3D12_COMMAND_LIST_TYPE type, Microsoft::WRL::ComPtr<ID3D12CommandAllocator> commandAllocator);
-
+	Microsoft::WRL::ComPtr<ID3D12Fence> CreateFence(Microsoft::WRL::ComPtr<ID3D12Device2> device);
+	HANDLE CreateEventHandle();
+	UINT64 Signal(Microsoft::WRL::ComPtr<ID3D12CommandQueue> commandQueue, Microsoft::WRL::ComPtr<ID3D12Fence> fence, UINT64& fenceValue);
+	VOID WaitForFenceValue(Microsoft::WRL::ComPtr<ID3D12Fence> fence, UINT64 fenceValue, HANDLE fenceEvent, std::chrono::milliseconds duration = std::chrono::milliseconds::max());
+	VOID Flush(Microsoft::WRL::ComPtr<ID3D12CommandQueue> commandQueue, Microsoft::WRL::ComPtr<ID3D12Fence> fence, UINT64& fenceValue, HANDLE fenceEvent);
+	VOID SetFullScreen(BOOL fullscreen);
 };
