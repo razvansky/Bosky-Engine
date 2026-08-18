@@ -4,7 +4,8 @@
 
 class GraphicsRenderer {
 public:
-
+	GraphicsRenderer(BOOL useWarp, UINT32 clientWidth, UINT32 clientHeight, HWND hWnd);
+	~GraphicsRenderer();
 
 
 private:
@@ -37,7 +38,7 @@ private:
 	BOOL g_FullScreen = FALSE;
 
 	VOID EnableDebugLayer();
-
+	Microsoft::WRL::ComPtr<IDXGIAdapter4> GetAdapter(BOOL useWarp);
 
 
 };
