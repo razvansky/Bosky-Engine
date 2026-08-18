@@ -39,6 +39,9 @@ private:
 
 	VOID EnableDebugLayer();
 	Microsoft::WRL::ComPtr<IDXGIAdapter4> GetAdapter(BOOL useWarp);
-
+	Microsoft::WRL::ComPtr<ID3D12Device2> CreateDevice(Microsoft::WRL::ComPtr<IDXGIAdapter4> adapter);
+	Microsoft::WRL::ComPtr<ID3D12CommandQueue> CreateCommandQueue(Microsoft::WRL::ComPtr<ID3D12Device2> device, D3D12_COMMAND_LIST_TYPE type);
+	BOOL CheckTearingSupport();
+	Microsoft::WRL::ComPtr<IDXGISwapChain4> CreateSwapChain(Microsoft::WRL::ComPtr<ID3D12CommandQueue> commandQueue, HWND hWnd, UINT32 width, UINT32 height, UINT32 bufferCount);	
 
 };
